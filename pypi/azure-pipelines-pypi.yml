@@ -13,6 +13,7 @@ jobs:
     displayName: 'Setup Docker Image'
 
   - script: |
+      chmod +x pypi/build.sh
       docker run -e BUILD_NUM=$(Build.BuildNumber) -v $(Build.Repository.LocalPath):/boolector pyboolector
     displayName: 'Run PyBoolector Build'
 
