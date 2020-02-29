@@ -94,7 +94,7 @@ if test $? -ne 0; then exit 1; fi
 cd boolector/deps/btor2tools
 if test $? -ne 0; then exit 1; fi
 
-./configure.sh -fPIC
+./configure.sh 
 if test $? -ne 0; then exit 1; fi
 
 make -j${N_CORES}
