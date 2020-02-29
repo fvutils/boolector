@@ -9,7 +9,7 @@ jobs:
     displayName: 'Install wheel+twine'
   - script: |
       docker pull quay.io/pypa/manylinux1_x86_64
-      docker build -t pyboolector .
+      docker build -t pyboolector pypi
     displayName: 'Setup Docker Image'
 
   - script: |
