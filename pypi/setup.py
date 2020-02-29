@@ -1,6 +1,26 @@
+import os
 
 NAME = 'PyBoolector'
-VERSION = '3.0.0.{{BUILD_NUM}}'
+
+pypi_dir = os.path.dirname(os.path.abspath(__file__))
+boolector_dir = os.path.dirname(pypi_dir)
+
+VERSION=None
+with open(os.path.join(boolector_dir, "CMakeLists.txt")) as f:
+    for i in range(30):
+        line = f.readline()
+        if line == "":
+            break
+        elif line.find("set") != -1 and line.find("VERSION") != -1:
+            version_idx = line.find("VERSION")
+            qs_idx = line.find('"', version_idx)
+            qe_idx = line.find('"', qs_idx+1)
+            VERSION = line[qs_idx+1:qe_idx]
+            break
+
+if "BUILD_NUM" in os.environ.keys():
+    VERSION += "." + os.environ["BUILD_NUM"]
+
 DESCRIPTION = "Python wrapper around the Boolector SMT solver"
 LONG_DESCRIPTION = """\
 This package, specifically, enables the Boolector Python wrapper \
