@@ -97,11 +97,21 @@ if test $? -ne 0; then exit 1; fi
 ./configure.sh 
 if test $? -ne 0; then exit 1; fi
 
+cd build
+if test $? -ne 0; then exit 1; fi
+
 make -j${N_CORES}
 if test $? -ne 0; then exit 1; fi
 
-cp build/libbtor2parser.a ${BUILD_DIR}/boolector/deps/install/lib
+# Copy the result where Boolector can find it, and also where
+# the Python dist tools can
+cp lib/libbtor2parser.so ${BUILD_DIR}/boolector/deps/install/lib
 if test $? -ne 0; then exit 1; fi
+cp lib/libbtor2parser.so /usr/lib
+if test $? -ne 0; then exit 1; fi
+
+cd ..
+
 cp src/btor2parser/btor2parser.h  ${BUILD_DIR}/boolector/deps/install/include/btor2parser
 if test $? -ne 0; then exit 1; fi
 
@@ -132,6 +142,8 @@ if test $? -ne 0; then exit 1; fi
 cd ${BUILD_DIR}
 rm -rf pyboolector
 
+export CMAKELISTS_TXT=/boolector/CMakeLists.txt
+
 cp -r /boolector/pypi pyboolector
 
 cd pyboolector
@@ -140,8 +152,7 @@ cd pyboolector
 export BUILD_NUM
 #sed -i -e "s/{{BUILD_NUM}}/${BUILD_NUM}/g" setup.py
 
-# for py in python27 rh-python35 rh-python36; do
-for py in cp27-cp27m cp34-cp34m cp35-cp35m cp36-cp36m cp37-cp37m cp38-cp38; do
+for py in cp34-cp34m cp35-cp35m cp36-cp36m cp37-cp37m cp38-cp38; do
   echo "Python: ${py}"
   python=/opt/python/${py}/bin/python
   cd ${BUILD_DIR}/pyboolector

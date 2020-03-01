@@ -5,8 +5,13 @@ NAME = 'PyBoolector'
 pypi_dir = os.path.dirname(os.path.abspath(__file__))
 boolector_dir = os.path.dirname(pypi_dir)
 
+if "CMAKELISTS_TXT" in os.environ.keys():
+    cmakelists_txt = os.environ["CMAKELISTS_TXT"]
+else:
+    cmakelists_txt = os.path.join(boolector_dir, "CMakeLists.txt")
+
 VERSION=None
-with open(os.path.join(boolector_dir, "CMakeLists.txt")) as f:
+with open(cmakelists_txt, "r") as f:
     for i in range(30):
         line = f.readline()
         if line == "":
