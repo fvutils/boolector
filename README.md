@@ -1,6 +1,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Build Status](https://dev.azure.com/Boolector/Boolector/_apis/build/status/Boolector.boolector?branchName=master)](https://dev.azure.com/Boolector/Boolector/_build/latest?definitionId=1&branchName=master)
-
+[![PyPI version](https://badge.fury.io/py/pyboolector.svg)](https://badge.fury.io/py/pyboolector)
+[![PyPI](https://img.shields.io/pypi/dm/pyboolector.svg?label=PyPI%20downloads)](https://pypi.org/project/pyboolector/)
 # Boolector
 
 Boolector is a Satisfiability Modulo Theories (SMT) solver for the theories
