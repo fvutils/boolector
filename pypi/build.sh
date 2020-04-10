@@ -152,7 +152,7 @@ cd pyboolector
 export BUILD_NUM
 #sed -i -e "s/{{BUILD_NUM}}/${BUILD_NUM}/g" setup.py
 
-for py in cp34-cp34m cp35-cp35m cp36-cp36m cp37-cp37m cp38-cp38; do
+for py in cp35-cp35m cp36-cp36m cp37-cp37m cp38-cp38; do
   echo "Python: ${py}"
   python=/opt/python/${py}/bin/python
   cd ${BUILD_DIR}/pyboolector
