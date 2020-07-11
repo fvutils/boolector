@@ -43,15 +43,76 @@ export PATH=${BUILD_DIR}/${CMAKE_DIR}/bin:$PATH
 #unzip -o boolector-master.zip
 #if test $? -ne 0; then exit 1; fi
 
-#mkdir -p boolector/deps
-#mkdir -p boolector/deps/install/lib
-#mkdir -p boolector/deps/install/include/btor2parser
+mkdir -p boolector/deps
+mkdir -p boolector/deps/install/lib
+mkdir -p boolector/deps/install/include/btor2parser
 
-cd ${BUILD_DIR}/boolector
-./contrib/setup-btor2tools.sh
+#******************************************************************************
+#* Lingeling
+#******************************************************************************
+cd ${BUILD_DIR}
+  
+unzip -o lingeling-master.zip
 if test $? -ne 0; then exit 1; fi
-#./contrib/setup-cadical.sh
-./contrib/setup-lingeling.sh
+
+mv lingeling-master boolector/deps/lingeling
+if test $? -ne 0; then exit 1; fi
+
+cd boolector/deps/lingeling
+if test $? -ne 0; then exit 1; fi
+  
+# GCC doesn't like having a field named 'clone'
+sed -i -e 's/\<clone\>/_clone/g' ilingeling.c
+if test $? -ne 0; then exit 1; fi
+
+./configure.sh -fPIC
+if test $? -ne 0; then exit 1; fi
+
+# Define STDVERSION so we can find LLONG_MAX
+sed -i -e 's/\(CFLAGS=.*\)/\1\nCFLAGS+=-D__STDC_VERSION__=199901L/g' makefile
+if test $? -ne 0; then exit 1; fi
+
+make -j${N_CORES}
+if test $? -ne 0; then exit 1; fi
+
+cp liblgl.a ${BUILD_DIR}/boolector/deps/install/lib
+if test $? -ne 0; then exit 1; fi
+cp lglib.h  ${BUILD_DIR}/boolector/deps/install/include
+if test $? -ne 0; then exit 1; fi
+
+#************************************************************************************************
+#* btor2tools
+#************************************************************************************************
+cd ${BUILD_DIR}
+
+unzip -o btor2tools-master.zip
+if test $? -ne 0; then exit 1; fi
+
+mv btor2tools-master boolector/deps/btor2tools
+if test $? -ne 0; then exit 1; fi
+
+cd boolector/deps/btor2tools
+if test $? -ne 0; then exit 1; fi
+
+./configure.sh 
+if test $? -ne 0; then exit 1; fi
+
+cd build
+if test $? -ne 0; then exit 1; fi
+
+make -j${N_CORES}
+if test $? -ne 0; then exit 1; fi
+
+# Copy the result where Boolector can find it, and also where
+# the Python dist tools can
+cp lib/libbtor2parser.so ${BUILD_DIR}/boolector/deps/install/lib
+if test $? -ne 0; then exit 1; fi
+cp lib/libbtor2parser.so /usr/lib
+if test $? -ne 0; then exit 1; fi
+
+cd ..
+
+cp src/btor2parser/btor2parser.h  ${BUILD_DIR}/boolector/deps/install/include/btor2parser
 if test $? -ne 0; then exit 1; fi
 
 #********************************************************************
