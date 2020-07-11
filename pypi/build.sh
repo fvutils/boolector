@@ -50,7 +50,8 @@ export PATH=${BUILD_DIR}/${CMAKE_DIR}/bin:$PATH
 cd ${BUILD_DIR}/boolector
 ./contrib/setup-btor2tools.sh
 if test $? -ne 0; then exit 1; fi
-./contrib/setup-cadical.sh
+#./contrib/setup-cadical.sh
+./contrib/setup-lingeling.sh
 if test $? -ne 0; then exit 1; fi
 
 #********************************************************************
