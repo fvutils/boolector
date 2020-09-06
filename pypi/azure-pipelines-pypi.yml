@@ -28,6 +28,7 @@ jobs:
       targetFolder: $(Build.ArtifactStagingDirectory)
 
   - task: PublishBuildArtifacts@1
+    inputs:
       PathtoPublish: '$(Build.ArtifactStagingDirectory)'
       ArtifactName: 'dist'
       publishLocation: 'Container'
@@ -93,7 +94,8 @@ jobs:
       targetFolder: $(Build.ArtifactStagingDirectory)
 
   - task: PublishBuildArtifacts@1
-      PathtoPublish: '${Build.ArtifactStagingDirectory)'
+    inputs:
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)'
       ArtifactName: 'dist'
       publishLocation: 'Container'
 
