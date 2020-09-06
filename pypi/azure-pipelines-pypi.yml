@@ -68,9 +68,10 @@ jobs:
   - script: |
       cp -r src/api/python pypi/src
       sed -i -e 's/override//g' \
-         -e 's/noexcept/_GLIBCXX_USE_NOEXCEPT/g' \
-         -e 's/\(BoolectorException (const.*\)/\1\n    virtual ~BoolectorException() _GLIBCXX_USE_NOEXCEPT {}/' \
+         -e 's/noexcept/_NOEXCEPT/g' \
+         -e 's/\(BoolectorException (const.*\)/\1\n    virtual ~BoolectorException() _NOEXCEPT {}/' \
          src/pyboolector_abort.cpp
+      cat src/pyboolector_abort.cpp
       mkdir -p pypi/src/utils
       cp src/*.h pypi/src
       cp src/utils/*.h pypi/src/utils
