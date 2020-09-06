@@ -80,5 +80,9 @@ jobs:
       python3 src/mkoptions.py ./src/btortypes.h src/pyboolector_options.pxd
       python3 setup.py sdist bdist_wheel
       if test $? -ne 0; then exit 1; fi
+      for whl in dist/*.whl; do
+          auditwheel repair $whl
+          if test $? -ne 0; then exit 1; fi
+      done
     displayName: 'Build PyPi package'
 
