@@ -74,6 +74,7 @@ jobs:
   - script: |
       cp -r src/api/python pypi/src
       mkdir -p pypi/src/utils
+      cp src/*.h pypi/src/utils
       cp src/utils/*.h pypi/src/utils
       cd pypi
       python src/mkoptions.py ./src/btortypes.h src/pyboolector_options.pxd
