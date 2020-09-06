@@ -67,15 +67,15 @@ jobs:
 
   - script: |
       cp -r src/api/python pypi/src
+      mkdir -p pypi/src/utils
+      cp src/*.h pypi/src
+      cp src/utils/*.h pypi/src/utils
+      cd pypi
       sed -i -e 's/override//g' \
          -e 's/noexcept/_NOEXCEPT/g' \
          -e 's/\(BoolectorException (const.*\)/\1\n    virtual ~BoolectorException() _NOEXCEPT {}/' \
          src/pyboolector_abort.cpp
       cat src/pyboolector_abort.cpp
-      mkdir -p pypi/src/utils
-      cp src/*.h pypi/src
-      cp src/utils/*.h pypi/src/utils
-      cd pypi
       python3 src/mkoptions.py ./src/btortypes.h src/pyboolector_options.pxd
       python3 setup.py sdist bdist_wheel
     displayName: 'Build PyPi package'
