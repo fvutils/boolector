@@ -71,7 +71,7 @@ jobs:
       cp src/*.h pypi/src
       cp src/utils/*.h pypi/src/utils
       cd pypi
-      sed -e 's/override//g' -e 's/noexcept/_NOEXCEPT/g' -e 's/\(BoolectorException (const.*\)/\1\n    virtual ~BoolectorException() _NOEXCEPT {}/' src/pyboolector_abort.cpp > src/pyboolector_abort.cpp.new
+      sed -e 's/override//g' -e 's/noexcept/_NOEXCEPT/g' -e 's/\(BoolectorException (const.*\)/\1    virtual ~BoolectorException() _NOEXCEPT {}/' src/pyboolector_abort.cpp > src/pyboolector_abort.cpp.new
       if test $? -ne 0; then exit 1; fi
       cp src/pyboolector_abort.cpp.new src/pyboolector_abort.cpp
       cat src/pyboolector_abort.cpp
