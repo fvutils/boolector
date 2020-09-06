@@ -40,10 +40,10 @@ jobs:
         needCython: true
         btorConfig: ''
         btorConfigEnv: ''
-      production_clang:
-        needCython: true
-        btorConfig: ''
-        btorConfigEnv: 'CC=clang CXX=clang++'
+#      production_clang:
+#        needCython: true
+#        btorConfig: ''
+#        btorConfigEnv: 'CC=clang CXX=clang++'
   steps:
   - script: echo "##vso[task.setvariable variable=ncpus]$(sysctl -n hw.logicalcpu)"
     displayName: 'Determine number of CPUs'
@@ -93,7 +93,7 @@ jobs:
           python3 -m twine --version
           echo "Calling twine"
 
-          python3 -m twine upload -r pyboolector --config-file $(PYPIRC_PATH) wheelhouse/*
+          python3 -m twine upload -r pyboolector --config-file $(PYPIRC_PATH) dist/*.whl
           echo "Calling twine complete"
       fi
     displayName: 'Upload to PyPi'
