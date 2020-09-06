@@ -81,6 +81,12 @@ jobs:
       python3 setup.py sdist bdist_wheel
       if test $? -ne 0; then exit 1; fi
     displayName: 'Build PyPi package'
+
+  - task: TwineAuthenticate@1
+    condition: eq(variables['Build.SourceBranchName'], 'master')
+    inputs:
+      pythonUploadServiceConnection: pypi-pyboolector
+
   - script: |
       # Only deploy from master
       if test "$(Build.SourceBranchName)" = "master"; then
@@ -92,8 +98,8 @@ jobs:
           python3 -m twine --version
           echo "Calling twine"
 
-          python3 -m twine upload -r pyboolector dist/*.whl
-          /bin/bash -x -c "python3 -m twine upload -r pyboolector dist/*.whl"
+          python3 -m twine uoad -r pyboolector --config-file $(PYPIRC_PATH) dist/*.whl
+          /bin/bash -x -c "python3 -m twine upload -r pyboolector --config-file $(PYPIRC_PATH) dist/*.whl"
           echo "Calling twine complete"
       fi
     displayName: 'Upload to PyPi'
