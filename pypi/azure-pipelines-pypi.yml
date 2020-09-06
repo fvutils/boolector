@@ -84,9 +84,15 @@ jobs:
   - script: |
       # Only deploy from master
       if test "$(Build.SourceBranchName)" = "master"; then
+          cd pypi
+          echo "Contents of pypi"
+          ls
+          echo "Contents of pypi/wheelhouse"
+          ls wheelhouse
           python3 -m twine --version
           echo "Calling twine"
-          python3 -m twine upload -r pyboolector --config-file $(PYPIRC_PATH) result/wheelhouse/* result/dist/*.tar.gz
+
+          python3 -m twine upload -r pyboolector --config-file $(PYPIRC_PATH) wheelhouse/*
           echo "Calling twine complete"
       fi
     displayName: 'Upload to PyPi'
