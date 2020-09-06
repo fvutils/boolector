@@ -61,7 +61,9 @@ jobs:
   - script: $(btorConfigEnv) ./configure.sh -fPIC $(btorConfig)
     displayName: 'Configure Boolector'
 
-  - script: make -j $(ncpus)
+  - script: |
+      make -j $(ncpus)
+      make install
     workingDirectory: 'build'
     displayName: 'Build Boolector'
 
