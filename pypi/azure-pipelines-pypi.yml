@@ -87,8 +87,9 @@ jobs:
           cd pypi
           echo "Contents of pypi"
           ls
-          echo "Contents of pypi/wheelhouse"
-          ls wheelhouse
+          echo "Contents of pypi/dist"
+          ls dist
+          ls dist/wheelhouse
           python3 -m twine --version
           echo "Calling twine"
 
