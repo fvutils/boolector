@@ -44,10 +44,6 @@ jobs:
         needCython: true
         btorConfig: ''
         btorConfigEnv: 'CC=clang CXX=clang++'
-      python3:
-        needCython: true
-        btorConfig: '--python --py3'
-        btorConfigEnv: ''
   steps:
   - script: echo "##vso[task.setvariable variable=ncpus]$(sysctl -n hw.logicalcpu)"
     displayName: 'Determine number of CPUs'
@@ -64,7 +60,7 @@ jobs:
       ./contrib/setup-cms.sh
     displayName: 'Setup dependencies'
 
-  - script: $(btorConfigEnv) ./configure.sh $(btorConfig)
+  - script: $(btorConfigEnv) ./configure.sh -fPIC $(btorConfig)
     displayName: 'Configure Boolector'
 
   - script: make -j $(ncpus)
@@ -74,7 +70,7 @@ jobs:
   - script: |
       cp -r src/api/python pypi/src
       mkdir -p pypi/src/utils
-      cp src/*.h pypi/src/utils
+      cp src/*.h pypi/src
       cp src/utils/*.h pypi/src/utils
       cd pypi
       python src/mkoptions.py ./src/btortypes.h src/pyboolector_options.pxd
