@@ -89,11 +89,12 @@ jobs:
           ls
           echo "Contents of pypi/dist"
           ls dist
-          ls dist/wheelhouse
           python3 -m twine --version
           echo "Calling twine"
 
-          python3 -m twine upload -r pyboolector --config-file $(PYPIRC_PATH) dist/*.whl
+#          python3 -m twine upload -r pyboolector --config-file $(PYPIRC_PATH) dist/*.whl
+          python3 -m twine upload -r pyboolector dist/*.whl
+          /bin/bash -x -c "python3 -m twine upload -r pyboolector dist/*.whl"
           echo "Calling twine complete"
       fi
     displayName: 'Upload to PyPi'
