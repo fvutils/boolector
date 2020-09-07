@@ -66,6 +66,7 @@ jobs:
   - script: |
       brew remove boost
       ./contrib/setup-btor2tools.sh
+      #      ./contrib/setup-cadical.sh
       ./contrib/setup-lingeling.sh
     displayName: 'Setup dependencies'
 
