@@ -76,7 +76,8 @@ jobs:
   - script: |
       make -j $(ncpus)
       make install
-      find -type f
+      echo "Finding all files"
+      find 
     workingDirectory: 'build'
     displayName: 'Build Boolector'
 
