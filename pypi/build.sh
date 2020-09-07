@@ -178,8 +178,8 @@ for whl in dist/*.whl; do
 done
 
 rm -rf /boolector/result
-mkdir -p /boolector/result
+mkdir -p /boolector/result/dist
 
-cp -r wheelhouse dist /boolector/result
+cp -r wheelhouse/* dist/*.tar.gz /boolector/result/dist
 
 
