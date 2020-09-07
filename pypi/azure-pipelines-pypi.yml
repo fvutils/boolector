@@ -70,6 +70,7 @@ jobs:
     displayName: 'Build Boolector'
 
   - script: |
+      export BUILD_NUM=$(Build.BuildNumber)
       cp -r src/api/python pypi/src
       mkdir -p pypi/src/utils
       cp src/*.h pypi/src
