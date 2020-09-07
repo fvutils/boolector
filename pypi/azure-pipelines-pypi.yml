@@ -83,7 +83,7 @@ jobs:
 
   - script: |
       export BUILD_NUM=$(Build.BuildNumber)
-    export LIBRARY_PATH=$(Build.Repository.LocalPath)/deps/install/lib:$(Build.Repository.LocalPath)
+      export LIBRARY_PATH=$(Build.Repository.LocalPath)/deps/install/lib:$(Build.Repository.LocalPath)
       cp -r src/api/python pypi/src
       mkdir -p pypi/src/utils
       cp src/*.h pypi/src
