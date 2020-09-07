@@ -76,6 +76,7 @@ jobs:
   - script: |
       make -j $(ncpus)
       make install
+      find -type f
     workingDirectory: 'build'
     displayName: 'Build Boolector'
 
