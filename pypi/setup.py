@@ -277,7 +277,7 @@ if bdist_wheel:
 
 if __name__ == '__main__':
     if platform.system() == "Darwin":
-        libraries=['boolector', 'btor2parser', 'gl', 'cadical']
+        libraries=['boolector', 'btor2parser', 'lgl', 'cadical']
     else:
         libraries=['boolector']
 
