@@ -74,10 +74,10 @@ jobs:
     displayName: 'Configure Boolector'
 
   - script: |
-      make -j $(ncpus)
-      make install
+      make VERBOSE=1 -j $(ncpus)
+      make VERBOSE=1 install
       echo "Finding all files"
-      find 
+      find .
     workingDirectory: 'build'
     displayName: 'Build Boolector'
 
