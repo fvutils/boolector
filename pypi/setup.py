@@ -1,4 +1,5 @@
 import os
+import platform
 
 NAME = 'PyBoolector'
 
@@ -271,8 +272,14 @@ cmdclass = {
 if bdist_wheel:
     cmdclass['bdist_wheel'] = bdist_wheel
 
+# ../../deps/install/lib/libbtor2parser.a ../../deps/install/lib/liblgl.a ../../deps/install/lib/libcadical.a
+
 
 if __name__ == '__main__':
+    if platform.system() == "Darwin":
+        libraries=['boolector', 'btor2parser', 'gl', 'cadical']
+    else:
+        libraries=['boolector']
 
     setup(
         name=NAME,
@@ -297,7 +304,7 @@ if __name__ == '__main__':
 			'./src'
 		],
                 language="c++",
-                libraries=['boolector']),
+                libraries=libraries),
         ],
 
         distclass=Distribution,
