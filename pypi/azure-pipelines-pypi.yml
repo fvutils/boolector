@@ -2,13 +2,13 @@
 jobs:
 - job: PyPi_Linux
   pool:
-   vmImage: 'ubuntu-18.04'
+   vmImage: 'ubuntu-latest'
   steps:
   - script: |
       sudo python3 -m pip install wheel twine
     displayName: 'Install wheel+twine'
   - script: |
-      docker pull quay.io/pypa/manylinux1_x86_64
+      docker pull quay.io/pypa/manylinux2010_x86_64
       docker build -t pyboolector pypi
     displayName: 'Setup Docker Image'
 
