@@ -1,8 +1,6 @@
 /*  Boolector: Satisfiability Modulo Theories (SMT) solver.
  *
- *  Copyright (C) 2007-2010 Robert Daniel Brummayer.
- *  Copyright (C) 2007-2012 Armin Biere.
- *  Copyright (C) 2014-2019 Aina Niemetz.
+ *  Copyright (C) 2007-2021 by the authors listed in the AUTHORS file.
  *
  *  This file is part of Boolector.
  *  See COPYING for more information on using this software.
@@ -875,7 +873,22 @@ TEST_F (TestParseError, smt2perr164)
   run_smt_parse_error_test ("smt2perr164");
 }
 
-TEST_F (TestParseError, smt2perr173)
+TEST_F (TestParseError, smt2perr165)
 {
-  run_smt_parse_error_test ("smt2perr173");
+  run_smt_parse_error_test ("smt2perr165");
+}
+
+TEST_F (TestParseError, smt2perr166)
+{
+  run_smt_parse_error_test ("smt2perr166");
+}
+
+TEST_F (TestParseError, smt2perr167)
+{
+  run_smt_parse_error_test ("smt2perr167");
+}
+
+TEST_F (TestParseError, smt2perr168)
+{
+  run_smt_parse_error_test ("smt2perr168");
 }

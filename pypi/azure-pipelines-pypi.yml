@@ -1,72 +1,51 @@
-
 jobs:
-- job: PyPi_Linux
+- job: PyPi_Linux_x86_64
   pool:
-   vmImage: 'ubuntu-latest'
+    vmImage: 'ubuntu-latest'
   steps:
   - script: |
-      sudo python3 -m pip install wheel twine
-    displayName: 'Install wheel+twine'
-  - script: |
-      docker pull quay.io/pypa/manylinux2010_x86_64
-      docker build -t pyboolector pypi
-    displayName: 'Setup Docker Image'
-
-  - script: |
-      chmod +x pypi/build.sh
-      docker run -e BUILD_NUM=$(Build.BuildNumber) -v $(Build.Repository.LocalPath):/boolector pyboolector
+      docker run -e BUILD_NUM=$(Build.BuildNumber) -e PYTHON_VERSIONS="$(PYTHON_VERSIONS)" -v $(Build.Repository.LocalPath):/boolector quay.io/pypa/manylinux2010_x86_64 /boolector/pypi/build.sh
     displayName: 'Run PyBoolector Build'
 
-  - task: TwineAuthenticate@1
-    condition: eq(variables['Build.SourceBranchName'], 'master')
-    inputs:
-      pythonUploadServiceConnection: pypi-pyboolector
+  - publish: result/dist
+    artifact: dist-linux-x86_64
 
-  - task: CopyFiles@2
-    inputs:
-      sourceFolder: '$(Build.Repository.LocalPath)/result/dist'
-      targetFolder: $(Build.ArtifactStagingDirectory)
-
-  - task: PublishBuildArtifacts@1
-    inputs:
-      PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-      ArtifactName: 'dist'
-      publishLocation: 'Container'
+- job: PyPi_Linux_ppc64le
+  pool:
+    vmImage: 'ubuntu-latest'
+  timeoutInMinutes: 120 # Builds in emulation are slow
+  steps:
+  - script: |
+      sudo docker run --rm --privileged aptman/qus -s -- -p ppc64le
+    displayName: 'Use Qemu to emulate a ppc64le environment'
 
   - script: |
-      # Only deploy from master
-      if test "$(Build.SourceBranchName)" = "master"; then
-          python3 -m twine --version
-          echo "Calling twine"
-          python3 -m twine upload -r pyboolector --config-file $(PYPIRC_PATH) result/dist/*
-          echo "Calling twine complete"
-      fi
-    displayName: 'Upload to PyPi'
+      docker run -e BUILD_NUM=$(Build.BuildNumber) -e PYTHON_VERSIONS="$(PYTHON_VERSIONS)" -v $(Build.Repository.LocalPath):/boolector quay.io/pypa/manylinux2014_ppc64le /boolector/pypi/build.sh
+    displayName: 'Run PyBoolector Build'
 
-- job: PyPi_MacOS
+  - publish: result/dist
+    artifact: dist-linux-ppc64le
+
+- job: PyPi_MacOS_x86_64
   pool:
-   vmImage: 'macos-latest'
+    vmImage: 'macos-latest'
   strategy:
     matrix:
       production:
         needCython: true
         btorConfig: ''
         btorConfigEnv: ''
-#      production_clang:
-#        needCython: true
-#        btorConfig: ''
-#        btorConfigEnv: 'CC=clang CXX=clang++'
   steps:
   - script: echo "##vso[task.setvariable variable=ncpus]$(sysctl -n hw.logicalcpu)"
     displayName: 'Determine number of CPUs'
 
-  - script: sudo pip3 install cython wheel twine setuptools
+  - script: sudo pip3 install cython wheel setuptools
     displayName: 'Install Cython'
 
   - script: |
       brew remove boost
       ./contrib/setup-btor2tools.sh
-      #      ./contrib/setup-cadical.sh
+      ./contrib/setup-cadical.sh
       ./contrib/setup-lingeling.sh
     displayName: 'Setup dependencies'
 
@@ -76,8 +55,6 @@ jobs:
   - script: |
       make VERBOSE=1 -j $(ncpus)
       make VERBOSE=1 install
-      echo "Finding all files"
-      find .
     workingDirectory: 'build'
     displayName: 'Build Boolector'
 
@@ -87,7 +64,9 @@ jobs:
       cp -r src/api/python pypi/src
       mkdir -p pypi/src/utils
       cp src/*.h pypi/src
+      cp COPYING pypi/LICENSE
       cp src/utils/*.h pypi/src/utils
+      version=`grep 'set(VERSION' /boolector/CMakeLists.txt | sed -e 's/^.*\"\(.*\)\".*$/\1/'`
       cd pypi
       sed -e 's/override//g' -e 's/noexcept/_NOEXCEPT/g' -e 's/\(BoolectorException (const.*\)/\1    virtual ~BoolectorException() _NOEXCEPT {}/' src/pyboolector_abort.cpp > src/pyboolector_abort.cpp.new
       if test $? -ne 0; then exit 1; fi
@@ -98,31 +77,29 @@ jobs:
       if test $? -ne 0; then exit 1; fi
     displayName: 'Build PyPi package'
 
+  - publish: pypi/dist
+    artifact: dist-macos-x86_64
+
+- job: PyPi_Upload
+  dependsOn:
+  - PyPi_Linux_x86_64
+  - PyPi_Linux_ppc64le
+  - PyPi_MacOS_x86_64
+  pool:
+    vmImage: 'ubuntu-latest'
+  condition: and(succeeded(), eq(variables['Build.SourceBranchName'], 'master'))
+  steps:
+  - download: current
+    displayName: Download all build artifacts
+
   - task: TwineAuthenticate@1
-    condition: eq(variables['Build.SourceBranchName'], 'master')
     inputs:
       pythonUploadServiceConnection: pypi-pyboolector
 
-  - task: CopyFiles@2
-    inputs:
-      sourceFolder: '$(Build.Repository.LocalPath)/pypi/dist'
-      contents: '*.whl'
-      targetFolder: $(Build.ArtifactStagingDirectory)
-
-  - task: PublishBuildArtifacts@1
-    inputs:
-      PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-      ArtifactName: 'dist'
-      publishLocation: 'Container'
-
   - script: |
-      # Only deploy from master
-      if test "$(Build.SourceBranchName)" = "master"; then
-          cd pypi
-          echo "Calling twine"
-
-          python3 -m twine upload -r pyboolector --config-file $(PYPIRC_PATH) dist/*.whl
-          echo "Calling twine complete"
-      fi
+      sudo pip3 install twine
+      python3 -m twine --version
+      echo "Calling twine"
+      python3 -m twine upload -r pyboolector --config-file $(PYPIRC_PATH) $(Agent.BuildDirectory)/dist-*/*.whl $(Agent.BuildDirectory)/dist-*/*.tar.gz
+      echo "Calling twine complete"
     displayName: 'Upload to PyPi'
-

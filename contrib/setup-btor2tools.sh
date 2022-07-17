@@ -1,5 +1,13 @@
 #!/usr/bin/env bash
 
+# Boolector: Satisfiablity Modulo Theories (SMT) solver.
+#
+# Copyright (C) 2007-2021 by the authors listed in the AUTHORS file.
+#
+# This file is part of Boolector.
+# See COPYING for more information on using this software.
+#
+
 set -e -o pipefail
 
 source "$(dirname "$0")/setup-utils.sh"
@@ -19,4 +27,4 @@ fi
 ./configure.sh -fPIC
 make -j${NPROC}
 install_lib build/libbtor2parser.a
-install_include src/btor2parser/btor2parser.h btor2parser
+install_include src/btor2parser/btor2parser.h

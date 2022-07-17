@@ -1,9 +1,6 @@
 /*  Boolector: Satisfiability Modulo Theories (SMT) solver.
  *
- *  Copyright (C) 2007-2009 Robert Daniel Brummayer.
- *  Copyright (C) 2007-2012 Armin Biere.
- *  Copyright (C) 2012-2020 Mathias Preiner.
- *  Copyright (C) 2013-2020 Aina Niemetz.
+ *  Copyright (C) 2007-2021 by the authors listed in the AUTHORS file.
  *
  *  This file is part of Boolector.
  *  See COPYING for more information on using this software.
@@ -81,9 +78,9 @@ Btor *boolector_new (void);
 
   .. note::
     If Lingeling is used as SAT solver, Boolector can be cloned at any time,
-    since Lingeling also supports cloning. However, if you use boolector_clone
-    with MiniSAT or PicoSAT (no cloning support), Boolector can only be cloned
-    prior to the first boolector_sat call.
+    since Lingeling also supports cloning. However, with all other SAT solver
+    that do not support cloning, Boolector can only be cloned prior to the
+    first boolector_sat call.
 */
 Btor *boolector_clone (Btor *btor);
 
@@ -354,7 +351,7 @@ int32_t boolector_sat (Btor *btor);
   Otherwise, this function can only be called once.
 
   :param btor: Boolector instance.
-  :param lod_limit: Limit for lemmas on demand (-1 unlimited).
+  :param lod_limit: Lemma limit (-1 unlimited).
   :param sat_limit: Conflict limit for SAT solver (-1 unlimited).
   :return: BOOLECTOR_SAT if the input formula is satisfiable (under possibly
            given assumptions), BOOLECTOR_UNSAT if the instance is
@@ -1128,7 +1125,7 @@ BoolectorNode *boolector_saddo (Btor *btor,
                                 BoolectorNode *n1);
 
 /*!
-  Create a bitvector multiplication.
+  Create a bit-vector multiplication.
 
   The parameters ``n0`` and ``n1`` must have the same bit width.
 
@@ -1701,7 +1698,7 @@ BoolectorNode *boolector_dec (Btor *btor, BoolectorNode *node);
 /*------------------------------------------------------------------------*/
 
 /*!
-  Create a universally quantified term.
+  Create a universally quantified formula.
 
   \forall (params[0] ... params[paramc - 1]) body
 
@@ -1709,7 +1706,7 @@ BoolectorNode *boolector_dec (Btor *btor, BoolectorNode *node);
   :param params: Array of quantified variables.
   :param paramc: length of ``params`` array.
   :param body: Term where ``params`` may occur.
-  :return: Universally quantified term with bit width 1.
+  :return: Universally quantified formula.
  */
 BoolectorNode *boolector_forall (Btor *btor,
                                  BoolectorNode *params[],
@@ -1717,7 +1714,7 @@ BoolectorNode *boolector_forall (Btor *btor,
                                  BoolectorNode *body);
 
 /*!
-  Create an existentially quantifed term.
+  Create an existentially quantifed formula.
 
   \exists (params[0] ... params[paramc - 1]) body
 
@@ -1725,7 +1722,7 @@ BoolectorNode *boolector_forall (Btor *btor,
   :param params: Array of quantified variables.
   :param paramc: length of ``params`` array.
   :param body: Term where ``params`` may occur.
-  :return: Existentially quantified term with bit width 1.
+  :return: Existentially quantified formula.
  */
 BoolectorNode *boolector_exists (Btor *btor,
                                  BoolectorNode *param[],
@@ -1742,7 +1739,6 @@ BoolectorNode *boolector_exists (Btor *btor,
 */
 Btor *boolector_get_btor (BoolectorNode *node);
 
-// TODO (ma): obsolete with BoolectorNode * -> id
 /*!
   Get the id of a given node.
 
@@ -1952,7 +1948,7 @@ bool boolector_is_var (Btor *btor, BoolectorNode *node);
 bool boolector_is_array (Btor *btor, BoolectorNode *node);
 
 /*!
-  Determine if expression is an array variable.
+  Determine if given node is an array variable.
 
   :param btor: Boolector instance.
   :param node: Boolector node.
@@ -2014,6 +2010,18 @@ int32_t boolector_fun_sort_check (Btor *btor,
                                   BoolectorNode *n_fun);
 
 /*------------------------------------------------------------------------*/
+
+/*!
+  Get the node representation of the model value of a given expression.
+
+  :param btor: Boolector instance.
+  :param node: Boolector node.
+  :return: A Boolector node representing the model value of the given node.
+
+  .. seealso::
+    boolector_set_opt for enabling model generation.
+*/
+BoolectorNode *boolector_get_value (Btor *btor, BoolectorNode *node);
 
 /*!
   Generate an assignment string for bit-vector expression if
@@ -2336,11 +2344,11 @@ uint32_t boolector_bitvec_sort_get_width (Btor *btor, BoolectorSort sort);
   :param error_msg: Error message.
   :param status: Status of the input formula.
   :param parsed_smt2: Flag indicating if an SMT-LIB v2 was parsed.
-  :return: In the incremental case or in case of SMT-LIB v2 (which requires a
-           'check-sat' command), the function returns either BOOLECTOR_SAT,
-           BOOLECTOR_UNSAT or BOOLECTOR_UNKNOWN. Otherwise, it always returns
-           BOOLECTOR_PARSE_UNKNOWN. If a parse error occurs the function
-           returns BOOLECTOR_PARSE_ERROR.
+  :return: If the input issues a call to check sat (in case of incremental
+           SMT-LIB v1 case or SMT-LIB v2), this function returns either
+           BOOLECTOR_SAT, BOOLECTOR_UNSAT or BOOLECTOR_UNKNOWN. Otherwise, it
+           always returns BOOLECTOR_PARSE_UNKNOWN. If a parse error occurs the
+           function returns BOOLECTOR_PARSE_ERROR.
 */
 int32_t boolector_parse (Btor *btor,
                          FILE *infile,
@@ -2403,10 +2411,10 @@ int32_t boolector_parse_btor2 (Btor *btor,
   :param outfile: Input file.
   :param error_msg: Error message.
   :param status: Status of the input formula.
-  :return: In the incremental case (right now `SMT-LIB v1`_ only) the function
-           returns either BOOLECTOR_SAT, BOOLECTOR_UNSAT or BOOLECTOR_UNKNOWN,
-           otherwise it always returns BOOLECTOR_UNKNOWN. If a parse error
-           occurs the function returns BOOLECTOR_PARSE_ERROR.
+  :return: In the incremental case, the function returns either BOOLECTOR_SAT,
+           BOOLECTOR_UNSAT or BOOLECTOR_UNKNOWN, otherwise it always returns
+           BOOLECTOR_UNKNOWN. If a parse error occurs the function returns
+           BOOLECTOR_PARSE_ERROR.
 */
 int32_t boolector_parse_smt1 (Btor *btor,
                               FILE *infile,
@@ -2424,8 +2432,9 @@ int32_t boolector_parse_smt1 (Btor *btor,
   :param outfile: Output file.
   :param error_msg: Error message.
   :param status: Status of the input formula.
-  :return: BOOLECTOR_UNKNOWN or BOOLECTOR_PARSE_ERROR if a parse error
-           occurred.
+  :return: The function returns either BOOLECTOR_SAT, BOOLECTOR_UNSAT or
+           BOOLECTOR_UNKNOWN. If a parse error occurs, the function returns
+           BOOLECTOR_PARSE_ERROR.
 */
 int32_t boolector_parse_smt2 (Btor *btor,
                               FILE *infile,
@@ -2454,17 +2463,6 @@ void boolector_dump_btor_node (Btor *btor, FILE *file, BoolectorNode *node);
                have been opened by the user before.
 */
 void boolector_dump_btor (Btor *btor, FILE *file);
-
-#if 0
-/*!
-  Dump formula to file in BTOR 2.0 format.
-
-  :param btor: Boolector instance.
-  :param file: File to which the formula should be dumped. The file must be
-               have been opened by the user before.
-*/
-void boolector_dump_btor2 (Btor * btor, FILE * file);
-#endif
 
 /*!
   Recursively dump ``node`` to file in `SMT-LIB v2`_ format.

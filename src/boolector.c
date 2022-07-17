@@ -1,9 +1,6 @@
 /*  Boolector: Satisfiability Modulo Theories (SMT) solver.
  *
- *  Copyright (C) 2007-2009 Robert Daniel Brummayer.
- *  Copyright (C) 2007-2016 Armin Biere.
- *  Copyright (C) 2012-2020 Mathias Preiner.
- *  Copyright (C) 2013-2020 Aina Niemetz.
+ *  Copyright (C) 2007-2021 by the authors listed in the AUTHORS file.
  *
  *  This file is part of Boolector.
  *  See COPYING for more information on using this software.
@@ -331,7 +328,7 @@ void
 boolector_set_abort (void (*fun) (const char* msg))
 {
   btor_abort_callback.abort_fun = abort_aux;
-  btor_abort_callback.cb_fun = fun;
+  btor_abort_callback.cb_fun = fun ? fun : btor_abort_fun;
 }
 
 void
@@ -1585,6 +1582,7 @@ mk_unique_symbol_aux (BtorMemMgr *mm, uint32_t num_push_pop, const char *symbol)
 static char *
 mk_unique_symbol (Btor *btor, const char *symbol)
 {
+  if (!symbol) return NULL; /* Leave null symbols as is. */
   char *res = mk_unique_symbol_aux (btor->mm, btor->num_push_pop, symbol);
   assert (!symbol || !strcmp (symbol, remove_unique_symbol_prefix (btor, res)));
   return res;
@@ -3985,6 +3983,34 @@ boolector_fun_sort_check (Btor *btor,
 
 /*------------------------------------------------------------------------*/
 
+BoolectorNode *
+boolector_get_value (Btor *btor, BoolectorNode *node)
+{
+  BtorNode *res;
+  BtorNode *exp;
+
+  exp = BTOR_IMPORT_BOOLECTOR_NODE (node);
+  BTOR_ABORT_ARG_NULL (btor);
+  BTOR_ABORT (
+      btor->last_sat_result != BTOR_RESULT_SAT || !btor->valid_assignments,
+      "cannot retrieve model if input formula is not SAT");
+  BTOR_ABORT (!btor_opt_get (btor, BTOR_OPT_MODEL_GEN),
+              "model generation has not been enabled");
+  BTOR_ABORT (btor->quantifiers->count,
+              "models are currently not supported with quantifiers");
+  BTOR_ABORT_ARG_NULL (exp);
+  BTOR_TRAPI_UNFUN (exp);
+  BTOR_ABORT_REFS_NOT_POS (exp);
+  BTOR_ABORT_BTOR_MISMATCH (btor, exp);
+  res = btor_model_get_value (btor, exp);
+  btor_node_inc_ext_ref_counter (btor, res);
+  BTOR_TRAPI_RETURN_NODE (res);
+#ifndef NDEBUG
+  BTOR_CHKCLONE_RES_PTR (res, get_value, BTOR_CLONED_EXP (exp));
+#endif
+  return BTOR_EXPORT_BOOLECTOR_NODE (res);
+}
+
 const char *
 boolector_bv_assignment (Btor *btor, BoolectorNode *node)
 {
@@ -4824,20 +4850,6 @@ boolector_dump_btor (Btor *btor, FILE *file)
 #endif
 }
 
-#if 0
-void
-boolector_dump_btor2 (Btor * btor, FILE * file)
-{
-  BTOR_TRAPI ("");
-  BTOR_ABORT_ARG_NULL (btor);
-  BTOR_ABORT_ARG_NULL (file);
-  btor_dumpbtor_dump (btor, file, 2);
-#ifndef NDEBUG
-  BTOR_CHKCLONE_NORES (dump_btor, file);
-#endif
-}
-#endif
-
 void
 boolector_dump_smt2_node (Btor *btor, FILE *file, BoolectorNode *node)
 {
@@ -4915,7 +4927,7 @@ boolector_copyright (Btor *btor)
   return "This software is\n"
          "Copyright (c) 2007-2009 Robert Brummayer\n"
          "Copyright (c) 2007-2018 Armin Biere\n"
-         "Copyright (c) 2012-2020 Aina Niemetz, Mathias Preiner\n"
+         "Copyright (c) 2012-2021 Aina Niemetz, Mathias Preiner\n"
 #ifdef BTOR_USE_LINGELING
          "\n"
          "This software is linked against Lingeling\n"

@@ -1,5 +1,7 @@
 variables:
   CCACHE_DIR: $(Pipeline.Workspace)/ccache
+  # cpython versions to build wheels for.
+  PYTHON_VERSIONS: cp36 cp37 cp38 cp39 cp310
 
 jobs:
 - job: Linux
@@ -115,3 +117,6 @@ jobs:
   - script: ctest -j$(ncpus) --output-on-failure
     workingDirectory: 'build'
     displayName: 'Run CTest'
+
+- template: pypi/azure-pipelines-pypi.yml
+

@@ -1,8 +1,6 @@
 /*  Boolector: Satisfiability Modulo Theories (SMT) solver.
  *
- *  Copyright (C) 2011-2017 Armin Biere.
- *  Copyright (C) 2013-2020 Aina Niemetz.
- *  Copyright (C) 2013-2020 Mathias Preiner.
+ *  Copyright (C) 2007-2021 by the authors listed in the AUTHORS file.
  *
  *  This file is part of Boolector.
  *  See COPYING for more information on using this software.
@@ -365,7 +363,8 @@ typedef struct BtorSMT2Parser
   FILE *outfile;
   double parse_start;
   bool store_tokens; /* needed for parsing terms in get-value */
-  BtorCharStack *prefix, token, tokens;
+  BtorIntStack *prefix;
+  BtorCharStack token, tokens;
   BoolectorSortStack sorts;
   BtorSMT2ItemStack work;
   BtorSMT2Coo coo, lastcoo, nextcoo, perrcoo;
@@ -424,7 +423,7 @@ perr_smt2 (BtorSMT2Parser *parser, const char *fmt, ...)
 }
 
 static void
-savech_smt2 (BtorSMT2Parser *parser, char ch)
+savech_smt2 (BtorSMT2Parser *parser, int32_t ch)
 {
   assert (!parser->saved);
   parser->saved   = true;
@@ -461,7 +460,7 @@ cerr_smt2 (BtorSMT2Parser *parser, const char *p, int32_t ch, const char *s)
   {
     case '\\':
       n = "backslash";
-      d = "\\\\";
+      d = "\\";
       break;
     case '\n':
       n = "new line";
@@ -1197,20 +1196,21 @@ RESTART:
     for (;;)
     {
       if ((ch = nextch_smt2 (parser)) == EOF)
+      {
         return !cerr_smt2 (parser, "unexpected", ch, "in string");
+      }
       if (ch == '"')
       {
         pushch_smt2 (parser, '"');
-        pushch_smt2 (parser, 0);
-        return BTOR_STRING_CONSTANT_TAG_SMT2;
+        ch = nextch_smt2 (parser);
+        if (ch != '"')
+        {
+          savech_smt2 (parser, ch);
+          pushch_smt2 (parser, 0);
+          return BTOR_STRING_CONSTANT_TAG_SMT2;
+        }
       }
-      if (ch == '\\')
-      {
-        if ((ch = nextch_smt2 (parser)) != '"' && ch != '\\')
-          return !cerr_smt2 (
-              parser, "unexpected", ch, "after backslash '\\\\' in string");
-      }
-      else if (!(cc_smt2 (parser, ch) & BTOR_STRING_CHAR_CLASS_SMT2))
+      if (!(cc_smt2 (parser, ch) & BTOR_STRING_CHAR_CLASS_SMT2))
       {
         // TODO unreachable?
         return !cerr_smt2 (parser, "invalid", ch, "in string");
@@ -4336,9 +4336,16 @@ echo_smt2 (BtorSMT2Parser *parser)
   if (tag != BTOR_STRING_CONSTANT_TAG_SMT2)
     return !perr_smt2 (parser, "expected string after 'echo'");
 
-  fprintf (parser->outfile, "%s", parser->token.start);
+  char *str = btor_mem_strdup (parser->mem, parser->token.start);
+  if (!read_rpar_smt2 (parser, " after 'echo'"))
+  {
+    btor_mem_freestr (parser->mem, str);
+    return 0;
+  }
+  fprintf (parser->outfile, "%s\n", str);
   fflush (parser->outfile);
-  return skip_sexprs (parser, 1);
+  btor_mem_freestr (parser->mem, str);
+  return 1;
 }
 
 static int32_t
@@ -4916,7 +4923,7 @@ read_command_smt2 (BtorSMT2Parser *parser)
 
 static const char *
 parse_smt2_parser (BtorSMT2Parser *parser,
-                   BtorCharStack *prefix,
+                   BtorIntStack *prefix,
                    FILE *infile,
                    const char *infile_name,
                    FILE *outfile,

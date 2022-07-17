@@ -1,8 +1,6 @@
 /*  Boolector: Satisfiability Modulo Theories (SMT) solver.
  *
- *  Copyright (C) 2013-2020 Mathias Preiner.
- *  Copyright (C) 2015-2020 Aina Niemetz.
- *  Copyright (C) 2018 Armin Biere.
+ *  Copyright (C) 2007-2021 by the authors listed in the AUTHORS file.
  *
  *  This file is part of Boolector.
  *  See COPYING for more information on using this software.
@@ -642,20 +640,21 @@ btor_bv_to_char (BtorMemMgr *mm, const BtorBitVector *bv)
   assert (bv);
 
   char *res;
-  uint32_t bw = bv->width;
+  uint64_t bw = bv->width;
 
   BTOR_CNEWN (mm, res, bw + 1);
 #ifdef BTOR_USE_GMP
   char *tmp     = mpz_get_str (0, 2, bv->val);
-  uint32_t n    = strlen (tmp);
-  uint32_t diff = bw - n;
+  uint64_t n    = strlen (tmp);
+  uint64_t diff = bw - n;
   assert (n <= bw);
   memset (res, '0', diff);
   memcpy (res + diff, tmp, n);
   assert (strlen (res) == bw);
   free (tmp);
 #else
-  uint32_t i, bit;
+  uint64_t i;
+  uint32_t bit;
 
   for (i = 0; i < bw; i++)
   {

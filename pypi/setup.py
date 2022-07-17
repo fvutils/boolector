@@ -1,5 +1,4 @@
 import os
-import platform
 
 NAME = 'PyBoolector'
 
@@ -27,42 +26,42 @@ with open(cmakelists_txt, "r") as f:
 if "BUILD_NUM" in os.environ.keys():
     VERSION += "." + os.environ["BUILD_NUM"]
 
+
 DESCRIPTION = "Python wrapper around the Boolector SMT solver"
 LONG_DESCRIPTION = """\
 This package, specifically, enables the Boolector Python wrapper \
-to be installed from Py-Pi
+to be installed from PyPi
 """
 MAINTAINER = "Matthew Ballance"
 MAINTAINER_EMAIL = 'matt.ballance@gmail.com'
-LICENSE = "Apache 2.0"
+LICENSE = "MIT License"
 PLATFORMS = "Any"
 URL = "https://github.com/boolector/boolector"
 DOWNLOAD_URL = "https://pypi.org/project/PyBoolector/"
 CLASSIFIERS = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: Apache Software License",
+    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python",
-    "Programming Language :: Python :: 2",
-    "Programming Language :: Python :: 2.7",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.4",
     "Programming Language :: Python :: 3.5",
     "Programming Language :: Python :: 3.6",
     "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 
-
-# TODO: Likely need to tune this a bit
 LIBBOOLECTOR_CHECK = """
 #include "boolector/boolector.h"
 
 int main(void) {
+    Btor * btor = boolector_new();
+    boolector_delete(btor);
 
     return 0;
 }
@@ -73,7 +72,6 @@ import sys, os.path, platform, warnings
 
 from distutils import log
 from distutils.core import setup, Command
-#from Cython.Build import cythonize
 from distutils.core import Distribution as _Distribution
 from distutils.core import Extension as _Extension
 from distutils.dir_util import mkpath
@@ -272,15 +270,8 @@ cmdclass = {
 if bdist_wheel:
     cmdclass['bdist_wheel'] = bdist_wheel
 
-# ../../deps/install/lib/libbtor2parser.a ../../deps/install/lib/liblgl.a ../../deps/install/lib/libcadical.a
-
 
 if __name__ == '__main__':
-    if platform.system() == "Darwin":
-#        libraries=['boolector', 'btor2parser', 'lgl', 'cadical']
-        libraries=['boolector', 'btor2parser', 'lgl']
-    else:
-        libraries=['boolector']
 
     setup(
         name=NAME,
@@ -305,7 +296,8 @@ if __name__ == '__main__':
 			'./src'
 		],
                 language="c++",
-                libraries=libraries),
+                libraries=['boolector'],
+                cython_directives={'language_level' : '3'}),
         ],
 
         distclass=Distribution,

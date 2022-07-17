@@ -1,8 +1,6 @@
 /*  Boolector: Satisfiability Modulo Theories (SMT) solver.
  *
- *  Copyright (C) 2013 Christian Reisenberger.
- *  Copyright (C) 2013-2019 Aina Niemetz.
- *  Copyright (C) 2013-2020 Mathias Preiner.
+ *  Copyright (C) 2007-2021 by the authors listed in the AUTHORS file.
  *
  *  This file is part of Boolector.
  *  See COPYING for more information on using this software.
@@ -246,7 +244,7 @@ is_num_str (const char *str)
   return ch == 0;
 }
 
-void
+static void
 parse_check_last_arg (char *op)
 {
   if (strtok (0, " "))
@@ -455,7 +453,7 @@ check_return_str (char *expected, char *got)
   return strncmp (expected, got, pos1) == 0;
 }
 
-void
+static void
 parse (FILE *file)
 {
   size_t i;
@@ -1736,6 +1734,12 @@ NEXT:
           btor, tmp, arg1_uint, hmap_get (hmap, arg1_str));
       exp_ret = RET_SKIP;
       BTOR_DELETEN (g_btorunt->mm, tmp, arg1_uint);
+    }
+    else if (!strcmp (tok, "get_value"))
+    {
+      PARSE_ARGS1 (tok, str);
+      ret_ptr = boolector_get_value (btor, hmap_get (hmap, arg1_str));
+      exp_ret = RET_NODEPTR;
     }
     else if (!strcmp (tok, "bv_assignment"))
     {

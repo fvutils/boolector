@@ -1,9 +1,6 @@
 /*  Boolector: Satisfiability Modulo Theories (SMT) solver.
  *
- *  Copyright (C) 2007-2009 Robert Daniel Brummayer.
- *  Copyright (C) 2007-2012 Armin Biere.
- *  Copyright (C) 2013-2016 Mathias Preiner.
- *  Copyright (C) 2013-2019 Aina Niemetz.
+ *  Copyright (C) 2007-2021 by the authors listed in the AUTHORS file.
  *
  *  This file is part of Boolector.
  *  See COPYING for more information on using this software.
@@ -58,7 +55,7 @@ struct BtorBTORParser
   Btor *btor;
 
   uint32_t nprefix;
-  BtorCharStack *prefix;
+  BtorIntStack *prefix;
   FILE *infile;
   const char *infile_name;
   uint32_t lineno;
@@ -1852,7 +1849,7 @@ delete_btor_parser (BtorBTORParser *parser)
  * input files). */
 static const char *
 parse_btor_parser (BtorBTORParser *parser,
-                   BtorCharStack *prefix,
+                   BtorIntStack *prefix,
                    FILE *infile,
                    const char *infile_name,
                    FILE *outfile,

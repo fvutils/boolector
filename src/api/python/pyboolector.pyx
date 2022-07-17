@@ -1,7 +1,6 @@
 # Boolector: Satisfiablity Modulo Theories (SMT) solver.
 #
-# Copyright (C) 2013-2018 Mathias Preiner.
-# Copyright (C) 2014-2020 Aina Niemetz.
+# Copyright (C) 2007-2021 by the authors listed in the AUTHORS file.
 #
 # This file is part of Boolector.
 # See COPYING for more information on using this software.
@@ -641,9 +640,13 @@ cdef class Boolector:
     cdef _BoolectorBitVecSort _sort
     cdef list _option_names
 
+    #: Value representing an `unknown` result.
     UNKNOWN = 0
+    #: Value representing a `sat` result.
     SAT = 10
+    #: Value representing an `unsat` result.
     UNSAT = 20
+    #: Value representing a `parse error` result.
     PARSE_ERROR = 1
 
     def __init__(self, Boolector parent = None):

@@ -1,8 +1,6 @@
 /*  Boolector: Satisfiability Modulo Theories (SMT) solver.
  *
- *  Copyright (C) 2013-2020 Aina Niemetz.
- *  Copyright (C) 2014-2018 Mathias Preiner.
- *  Copyright (C) 2014-2015 Armin Biere.
+ *  Copyright (C) 2007-2021 by the authors listed in the AUTHORS file.
  *
  *  This file is part of Boolector.
  *  See COPYING for more information on using this software.
@@ -1526,7 +1524,8 @@ clone_aux_btor (Btor *btor,
         CHKCLONE_MEM_PTR_HASH_TABLE (slv->aprop->roots, cslv->aprop->roots);
         CHKCLONE_MEM_PTR_HASH_TABLE (slv->aprop->score, cslv->aprop->score);
         CHKCLONE_MEM_PTR_HASH_TABLE (slv->aprop->model, cslv->aprop->model);
-        allocated += sizeof (AIGProp) + MEM_PTR_HASH_TABLE (cslv->aprop->roots)
+        allocated += sizeof (BtorAIGProp)
+                     + MEM_PTR_HASH_TABLE (cslv->aprop->roots)
                      + MEM_PTR_HASH_TABLE (cslv->aprop->score)
                      + MEM_PTR_HASH_TABLE (cslv->aprop->model);
       }
