@@ -561,7 +561,11 @@ btor_util_current_time (void)
 #ifdef BTOR_HAVE_STAT
 #include <sys/stat.h>
 #include <sys/types.h>
+#ifndef _WIN32
 #include <unistd.h>
+#else
+#include <windows.h>
+#endif
 int32_t
 btor_util_file_exists (const char *path)
 {

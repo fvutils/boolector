@@ -35,6 +35,10 @@
 #include <stdio.h>
 #include <string.h>
 
+#ifdef _WIN32
+#define pclose _pclose
+#endif
+
 /*------------------------------------------------------------------------*/
 
 static void

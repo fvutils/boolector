@@ -26,7 +26,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifndef _WIN32
 #include <unistd.h>
+#else
+#include <windows.h>
+#define popen _popen
+#define pclose _pclose
+#endif
 
 typedef struct BtorMainApp BtorMainApp;
 static BtorMainApp *g_app;

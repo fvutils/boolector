@@ -27,6 +27,10 @@
 #define BTOR_MC_SUCC_EXIT 0
 #define BTOR_MC_ERR_EXIT 1
 
+#ifdef _WIN32
+#define popen _popen
+#endif
+
 /*------------------------------------------------------------------------*/
 
 static void

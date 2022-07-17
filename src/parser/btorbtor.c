@@ -22,6 +22,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef _WIN32
+#include <windows.h>
+#define strcasecmp lstrcmpi
+#endif
+
 /*------------------------------------------------------------------------*/
 
 void boolector_set_btor_id (Btor *, BoolectorNode *, int32_t);

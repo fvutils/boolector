@@ -8,6 +8,10 @@
 
 #include "btortrapi.h"
 
+#ifdef _WIN32
+#define popen _popen
+#endif
+
 void
 btor_trapi_print (Btor *btor, const char *msg, ...)
 {
